@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <items>
     <item>
-        <first_nameb>Kiestis</first_nameb>
+        <first_name>Kiestis</first_nameb>
         <age>29</age>
         <gender>male</gender>
     </item>
     <item>
-        <first_nameb>Vytska</first_nameb>
+        <first_name>Vytska</first_nameb>
         <age>32</age>
         <gender>male</gender>
     </item>
     <item>
-        <first_nameb>Karina</first_nameb>
+        <first_name>Karina</first_nameb>
         <age>25</age>
         <gender>female</gender>
     </item>

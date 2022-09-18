@@ -17,18 +17,17 @@ $list = array (
 );
 function read_valid_xml($file){
   $xml = simplexml_load_file($file);
-
-  if ($xml === false) {
-    echo "Failed loading XML: ";
-    foreach(libxml_get_errors() as $error) {
-      echo "<br>", $error->message;
-    }
-  } else {
-    print_r($xml);
-    if (!property_exists($xml, 'first_name')) die('netinka xml');
-  }
+ 
+$array = array();
+$list = $xml->item;
+//var_dump($xml);
+for ($i = 0; $i < count($list); $i++) {
+    if(!isset($list[$i]->first_name)) return false;
+    $array[$i] = array($list[$i]->first_name,$list[$i]->age,$list[$i]->gender);
 }
-read_valid_xml('f/file.xml');
+return $array;
+}
+
 function read_valid_csv($file){
 $csv = array();
 $lines = file($file, FILE_IGNORE_NEW_LINES);
@@ -94,7 +93,9 @@ class pages {
  switch ($_GET["psl"]) {
     case '':
       $c = read_valid_csv('f/file.csv');
+      $a = read_valid_xml('f/file.xml');
       if(!$c) return;
+     
       $head = $c[0];
          echo '<table border="1"><tr><td>'.$head[0].'</td><td>'.$head[1].'</td><td>'.$head[2].'</td></tr>';
          echo '';
@@ -103,7 +104,8 @@ class pages {
           echo '<tr><td>'.$c[$i][0].'</td><td>'.$c[$i][1].'</td><td>'.$c[$i][2].'</td></tr>';
          }
          echo '</table>';
-
+         if(!$a) return;
+         
         break;
     case 'pg':
         echo 'pg';

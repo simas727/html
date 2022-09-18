@@ -7,7 +7,7 @@ error_reporting(E_ALL);
 // failu skaitymas / validavimas | Nebaigta
 // https://www.digitalocean.com/community/tutorials/how-to-implement-pagination-in-mysql-with-php-on-ubuntu-18-04
 //https://www.youtube.com/watch?v=ARxZV8OZ8Cg&list=PLNuh5_K9dfQ3jMU-2C2jYRGe2iXJkpCZj&ab_channel=ZakH.
-//test s a
+//https://www.geeksforgeeks.org/sort-a-multidimensional-array-by-date-element-in-php/
 $list = array (
   array('first_name', 'age', 'gender'),
   array('Kiestis', 32,'male'),

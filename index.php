@@ -2,6 +2,8 @@
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+session_start();
+$_SESSION['notes'] = array();
 // Senokai dirbau PHP todėl atleiskite :)
 //https://www.guru99.com/php-and-xml.html#4
 // failu skaitymas / validavimas | Nebaigta
@@ -38,7 +40,13 @@ foreach($csv as $value){
 
  //if(!in_array('json',$formatai)) die('Noo');
 class Core {
-  
+    function Error($head,$body){
+      echo `<div class="w3-panel w3-red">
+      <h3>`.$head.`</h3>
+      <p>`.$body.`</p>
+    </div> `;
+
+    }
     function he(){
         echo "<div class='mySlides w3-display-container w3-center'>
         <img src='https://wallpaperaccess.com/full/1278165.jpg' style='width:100%; height: 50vw; '>
@@ -113,15 +121,15 @@ $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
 // Check if image file is a actual image or fake image
 if(isset($_POST["submit"])) {
   $uploadOk = 0;
-  if(!in_array($imageFileType,$formatai)) die('Klaida');
+  if(!in_array($imageFileType,$formatai)) $this->Error('Klaida!','Netinkamas formatas!');
   if (file_exists($target_file)) {
-    echo "Sorry, file already exists.";
+    $this->Error('Klaida!','Failas jau egzistuoja');
     $uploadOk = 0;
   }
   if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
     echo "The file ". htmlspecialchars( basename( $_FILES["fileToUpload"]["name"])). " has been uploaded.";
   } else {
-    echo "Sorry, there was an error uploading your file.";
+    $this->Error('Klaida!','kažkas ne taip, ikelti nepavyko!');
   }
   if($imageFileType === 'json'){
     $uploadOk = 1;
@@ -151,7 +159,19 @@ if(isset($_POST["submit"])) {
         }
          echo '</table>';
   }
-  
+  function Add_note(){
+ 
+    if(isset($_POST["submit2"])) {
+      $name = $_POST['name'];
+      $note = $_POST['text'];
+      
+      if(empty($name) || empty($note)) return $this->Error('Klaida!','Laukeliai negali būti tušti!');
+      if(isset($name) || isset($note)) {
+      
+      array_push($_SESSION['notes'],(array('name'=>$name,'note'=>$note,'pin'=>0,'date'=>date("Y-m-d h:i:s"))));
+      }
+    }
+  }
 }
  
  $pg = new Core();
@@ -198,9 +218,9 @@ body {font-family: "Lato", sans-serif}
   <div class="w3-bar w3-black w3-card">
     <a class="w3-bar-item w3-button w3-padding-large w3-hide-medium w3-hide-large w3-right" href="javascript:void(0)" onclick="myFunction()" title="Toggle Navigation Menu"><i class="fa fa-bars"></i></a>
     <a href="#" class="w3-bar-item w3-button w3-padding-large">HOME</a>
-    <a href="#band" class="w3-bar-item w3-button w3-padding-large w3-hide-small">BAND</a>
-    <a href="#tour" class="w3-bar-item w3-button w3-padding-large w3-hide-small">TOUR</a>
-    <a href="#contact" class="w3-bar-item w3-button w3-padding-large w3-hide-small">CONTACT</a>
+    <a href="#band" class="w3-bar-item w3-button w3-padding-large w3-hide-small">Failai</a>
+    <a href="#tour" class="w3-bar-item w3-button w3-padding-large w3-hide-small">Užrašai</a>
+   
     <div class="w3-dropdown-hover w3-hide-small">
       <button class="w3-padding-large w3-button" title="More">MORE <i class="fa fa-caret-down"></i></button>     
       <div class="w3-dropdown-content w3-bar-block w3-card-4">
@@ -233,15 +253,43 @@ body {font-family: "Lato", sans-serif}
    <form  method="post" enctype="multipart/form-data">
 
   <input type="file" name="fileToUpload" id="fileToUpload">
-  <input type="submit" value="Pateikti" name="submit">
+   <button class="w3-btn w3-blue-grey" name="submit">Pateikti</button>
 </form>
 <?php 
  $pg->Uploadfile();
 ?>
     </div>
   </div>
+  <div class="w3-container w3-content w3-center w3-padding-64" style="max-width:800px" id="note">
+   <p class="w3-justify">
+   <form  method="post" enctype="multipart/form-data">
+  <label>Pavadinimas:</label>
+  <input type="text" name="name" class="w3-input w3-border" id="name">
+  <label>Užrašas:</label>
+  <textarea name="text" class="w3-input w3-border"  id="text"></textarea>
+   
+  <button class="w3-btn w3-blue-grey" name="submit2">Pateikt</button> 
+
+</form>
+<?php
+$pg->Add_note()
+?>
+<br/><br/>
+<?php 
+var_dump($_SESSION['notes']);
+    if(empty($_SESSION['notes'])) return;
+    for($i = 0; $i > count($_SESSION['notes']); $i ++){
+
+      echo `<div class="w3-panel w3-leftbar w3-sand w3-xxlarge w3-serif">
+      <h1>`.$_SESSION['notes'][$i][0].`</h1>
+      <p><i>"`.$_SESSION['notes'][$i][1].`"</i></p>
+    </div>`;
+    } 
+  ?>
+
+</div>
+</div>
  
-  
 <!-- End Page Content -->
 </div>
 
@@ -255,6 +303,7 @@ body {font-family: "Lato", sans-serif}
   <i class="fa fa-twitter w3-hover-opacity"></i>
   <i class="fa fa-linkedin w3-hover-opacity"></i>
   <p class="w3-medium">Powered by <a href="https://www.w3schools.com/w3css/default.asp" target="_blank">w3.css</a></p>
+   
 </footer>
 
 <script>

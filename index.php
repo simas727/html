@@ -171,11 +171,12 @@ if(isset($_POST["submit"])) {
       if(isset($name) || isset($note)) {
       if(is_array($_SESSION['notes'])){
         array_push($_SESSION['notes'],(array('name'=>$name,'note'=>$note,'pin'=>1,'date'=>date("Y-m-d h:i:s"))));
-     
+        $this->Sort_By(0);
       }else{ 
          
 
         $_SESSION['notes'] = $ar;
+        $this->Sort_By(0);
       }
       }
     }
@@ -235,51 +236,44 @@ function Sort_By($type){
     $this->Display_Pins($arg);
   }
 }
+function Page_Files(){
+  echo ' <div class="w3-container w3-content w3-center w3-padding-64" style="max-width:800px" id="file">
+  <p class="w3-justify">
+  <form  method="post" enctype="multipart/form-data">
+
+ <input type="file" name="fileToUpload" id="fileToUpload">
+  <button class="w3-btn w3-blue-grey" name="submit">Pateikti</button>
+</form>
+ </div>
+'.$this->Uploadfile();
+
+}
+function Page_Notes(){
+
+  echo '<div class="w3-container w3-content w3-center w3-padding-64" style="max-width:800px" id="note">
+  <p class="w3-justify">
+  <form  method="post" enctype="multipart/form-data">
+ <label>Pavadinimas:</label>
+ <input type="text" name="name" class="w3-input w3-border" id="name">
+ <label>Užrašas:</label>
+ <textarea name="text" class="w3-input w3-border"  id="text"></textarea>
+  
+ <button class="w3-btn w3-blue-grey" name="submit2">Pateikt</button> 
+
+</form>
+ 
+'.$this->Add_note().'
+ 
+<br/><br/>
+
+
+
+</div>';
+}
 }
  
  $pg = new Core();
  $pg->he();
-
- 
- switch ($_GET["psl"]) {
-    case '':
-    
-         
-        // if(!$a) return;
-          $pg->Sort_By(0);
-        break;
-    case 'sortbypin':
-      $pg->Sort_By(2);
-        break;
-        case 'sortbydate':
-          $pg->Sort_By(1);
-            break;
-      case 'delnote':
-        $id = $_GET['id'];
-         array_splice($_SESSION['notes'],$id,1);
-         
-        break;
-        case 'pinnote':
-          $array = $_SESSION['notes'];
-          $id = $_GET['id'];
-          echo $_SESSION['notes'][$id]['pin'];
-          echo $id;
-          if($array[$id]['pin']){
-            $array[$id]['pin'] = 0;
-            $_SESSION['notes'] = $array;
-            $pg->Sort_By(0);
-          }else{
-            $array[$id]['pin'] = 1;
-            $_SESSION['notes'] = $array;
-            $pg->Sort_By(0);
-          }
-          break;
-        
-    default:
-        # code...
-        break;
- }
-   
 
 ?>
 
@@ -303,69 +297,85 @@ body {font-family: "Lato", sans-serif}
 <div class="w3-top">
   <div class="w3-bar w3-black w3-card">
     <a class="w3-bar-item w3-button w3-padding-large w3-hide-medium w3-hide-large w3-right" href="javascript:void(0)" onclick="myFunction()" title="Toggle Navigation Menu"><i class="fa fa-bars"></i></a>
-    <a href="#" class="w3-bar-item w3-button w3-padding-large">HOME</a>
-    <a href="#band" class="w3-bar-item w3-button w3-padding-large w3-hide-small">Failai</a>
-    <a href="#tour" class="w3-bar-item w3-button w3-padding-large w3-hide-small">Užrašai</a>
+    <a href="index.php" class="w3-bar-item w3-button w3-padding-large">HOME</a>
+    <a href="?psl=files" class="w3-bar-item w3-button w3-padding-large w3-hide-small">Failai</a>
+    <a href="?psl=notes" class="w3-bar-item w3-button w3-padding-large w3-hide-small">Užrašai</a>
    
-    <div class="w3-dropdown-hover w3-hide-small">
-      <button class="w3-padding-large w3-button" title="More">MORE <i class="fa fa-caret-down"></i></button>     
-      <div class="w3-dropdown-content w3-bar-block w3-card-4">
-        <a href="#" class="w3-bar-item w3-button">Merchandise</a>
-        <a href="#" class="w3-bar-item w3-button">Extras</a>
-        <a href="#" class="w3-bar-item w3-button">Media</a>
-      </div>
-    </div>
-    <a href="javascript:void(0)" class="w3-padding-large w3-hover-red w3-hide-small w3-right"><i class="fa fa-search"></i></a>
+    
+    <a href="?psl=reset" class="w3-padding-large w3-hover-red w3-hide-small w3-right">Reset</a>
   </div>
 </div>
 
 <!-- Navbar on small screens (remove the onclick attribute if you want the navbar to always show on top of the content when clicking on the links) -->
 <div id="navDemo" class="w3-bar-block w3-black w3-hide w3-hide-large w3-hide-medium w3-top" style="margin-top:46px">
-  <a href="#band" class="w3-bar-item w3-button w3-padding-large" onclick="myFunction()">BAND</a>
-  <a href="#tour" class="w3-bar-item w3-button w3-padding-large" onclick="myFunction()">TOUR</a>
-  <a href="#contact" class="w3-bar-item w3-button w3-padding-large" onclick="myFunction()">CONTACT</a>
-  <a href="#" class="w3-bar-item w3-button w3-padding-large" onclick="myFunction()">MERCH</a>
-</div>
+<a href="index.php" class="w3-bar-item w3-button w3-padding-large">HOME</a>
+    <a href="?psl=files" class="w3-bar-item w3-button w3-padding-large w3-hide-small">Failai</a>
+    <a href="?psl=notes" class="w3-bar-item w3-button w3-padding-large w3-hide-small">Užrašai</a>
+   
+  </div>
  
 <!-- Page content -->
 <div class="w3-content" style="max-width:2000px;margin-top:46px">
 
   <!-- Automatic Slideshow Images -->
  
-
-  <!-- The Band Section -->
-  <div class="w3-container w3-content w3-center w3-padding-64" style="max-width:800px" id="file">
-   <p class="w3-justify">
-   <form  method="post" enctype="multipart/form-data">
-
-  <input type="file" name="fileToUpload" id="fileToUpload">
-   <button class="w3-btn w3-blue-grey" name="submit">Pateikti</button>
-</form>
-<?php 
- $pg->Uploadfile();
-?>
-    </div>
-  </div>
-  <div class="w3-container w3-content w3-center w3-padding-64" style="max-width:800px" id="note">
-   <p class="w3-justify">
-   <form  method="post" enctype="multipart/form-data">
-  <label>Pavadinimas:</label>
-  <input type="text" name="name" class="w3-input w3-border" id="name">
-  <label>Užrašas:</label>
-  <textarea name="text" class="w3-input w3-border"  id="text"></textarea>
+ <?php 
+  
+  switch ($_GET["psl"]) {
+    case '':
+    
+         
+        // if(!$a) return;
+          $pg->Sort_By(0);
+        break;
+    case 'sortbypin':
+      $pg->Sort_By(2);
+        break;
+        case 'sortbydate':
+          $pg->Sort_By(1);
+            break;
+      case 'delnote':
+        $id = $_GET['id'];
+         array_splice($_SESSION['notes'],$id,1);
+         header('Location: index.php');
+        break;
+        case 'pinnote':
+          $array = $_SESSION['notes'];
+          $id = $_GET['id'];
+       
+          if($array[$id]['pin']){
+            $array[$id]['pin'] = 0;
+            $_SESSION['notes'] = $array;
+            header('Location: index.php');
+          }else{
+            $array[$id]['pin'] = 1;
+            $_SESSION['notes'] = $array;
+            header('Location: index.php');
+           
+          }
+          break;
+        case 'files':
+          $pg->Page_Files();
+          break;
+          case 'notes':
+            $pg->Page_Notes();
+            break;
+        case 'reset':
+          session_unset();
+          header('Location: index.php');
+          break;
+    default:
+        # code...
+        break;
+ }
    
-  <button class="w3-btn w3-blue-grey" name="submit2">Pateikt</button> 
 
-</form>
-<?php
-$pg->Add_note()
 ?>
-<br/><br/>
+  <!-- The Band Section -->
+  
+  </div>
+  
  
- 
-
-</div>
-</div>
  
 <!-- End Page Content -->
 </div>

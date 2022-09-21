@@ -3,7 +3,7 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 session_start();
-$_SESSION['notes'] = array();
+  
 // Senokai dirbau PHP todėl atleiskite :)
 //https://www.guru99.com/php-and-xml.html#4
 // failu skaitymas / validavimas | Nebaigta
@@ -164,14 +164,77 @@ if(isset($_POST["submit"])) {
     if(isset($_POST["submit2"])) {
       $name = $_POST['name'];
       $note = $_POST['text'];
-      
+      $ar = array (
+        array('name'=>$name,'note'=>$note,'pin'=>0,'date'=>date("Y-m-d h:i:s")),
+      );
       if(empty($name) || empty($note)) return $this->Error('Klaida!','Laukeliai negali būti tušti!');
       if(isset($name) || isset($note)) {
-      
-      array_push($_SESSION['notes'],(array('name'=>$name,'note'=>$note,'pin'=>0,'date'=>date("Y-m-d h:i:s"))));
+      if(is_array($_SESSION['notes'])){
+        array_push($_SESSION['notes'],(array('name'=>$name,'note'=>$note,'pin'=>1,'date'=>date("Y-m-d h:i:s"))));
+     
+      }else{ 
+         
+
+        $_SESSION['notes'] = $ar;
+      }
       }
     }
   }
+  function date_compare($element1, $element2) {
+    $datetime1 = strtotime($element1['datetime']);
+    $datetime2 = strtotime($element2['datetime']);
+    return $datetime1 - $datetime2;
+  } 
+function Display_Pins($arg){
+  
+
+// Sort the array 
+
+  //var_dump($_SESSION['notes']);
+  
+  if(!count($_SESSION['notes'])) return;
+  for($i = 0; $i < count($arg); $i++){
+   
+        echo '<div class="w3-panel w3-leftbar w3-sand  w3-serif">
+        <h2>'.$arg[$i]['name'].'</h2>
+        <p>'.$arg[$i]['note'].'</p>
+        <p>'.$arg[$i]['date'].'</p>
+        <p>PIN('.$arg[$i]['pin'].')</p>
+        <a href="?psl=delnote&id='.$i.'" class="w3-btn w3-red">Ištrinti</a>
+        <a href="?psl=pinnote&id='.$i.'" class="w3-btn w3-yellow">žimėti</a>
+       
+        </div> ';
+     
+    
+  } 
+  echo '  <a href="?psl=sortbydate" class="w3-btn w3-blue-grey">Rušiuoti pagal data</a>
+  <a href="?psl=sortbypin" class="w3-btn w3-blue-grey">Rušiuoti pagal žymas</a>
+';
+}
+function Sort_By($type){
+  $arg = $_SESSION['notes'];
+ 
+  if($type === 1){
+
+  /*  usort($arg, function ($element1, $element2) {
+      $datetime1 = strtotime($element1['date']);
+      
+      $datetime2 = strtotime($element2['date']);
+      return $datetime1 - $datetime2;
+    } );*/
+   // usort($arg, function($a, $b) { return $b['date'] <=> $a['date']; });
+   array_multisort(array_column($arg, 'date'), SORT_DESC, $arg);
+   
+   $this->Display_Pins($arg);
+  }elseif($type === 2){
+   
+    usort($arg, function($a, $b) { return $b['pin'] <=> $a['pin']; });
+   
+    $this->Display_Pins($arg);
+  }else{
+    $this->Display_Pins($arg);
+  }
+}
 }
  
  $pg = new Core();
@@ -183,17 +246,40 @@ if(isset($_POST["submit"])) {
     
          
         // if(!$a) return;
+          $pg->Sort_By(0);
+        break;
+    case 'sortbypin':
+      $pg->Sort_By(2);
+        break;
+        case 'sortbydate':
+          $pg->Sort_By(1);
+            break;
+      case 'delnote':
+        $id = $_GET['id'];
+         array_splice($_SESSION['notes'],$id,1);
          
         break;
-    case 'pg':
-        echo 'pg';
-        break;
+        case 'pinnote':
+          $array = $_SESSION['notes'];
+          $id = $_GET['id'];
+          echo $_SESSION['notes'][$id]['pin'];
+          echo $id;
+          if($array[$id]['pin']){
+            $array[$id]['pin'] = 0;
+            $_SESSION['notes'] = $array;
+            $pg->Sort_By(0);
+          }else{
+            $array[$id]['pin'] = 1;
+            $_SESSION['notes'] = $array;
+            $pg->Sort_By(0);
+          }
+          break;
+        
     default:
         # code...
         break;
  }
- 
- 
+   
 
 ?>
 
@@ -275,17 +361,8 @@ body {font-family: "Lato", sans-serif}
 $pg->Add_note()
 ?>
 <br/><br/>
-<?php 
-var_dump($_SESSION['notes']);
-    if(empty($_SESSION['notes'])) return;
-    for($i = 0; $i > count($_SESSION['notes']); $i ++){
-
-      echo `<div class="w3-panel w3-leftbar w3-sand w3-xxlarge w3-serif">
-      <h1>`.$_SESSION['notes'][$i][0].`</h1>
-      <p><i>"`.$_SESSION['notes'][$i][1].`"</i></p>
-    </div>`;
-    } 
-  ?>
+ 
+ 
 
 </div>
 </div>

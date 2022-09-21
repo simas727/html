@@ -97,11 +97,11 @@ class Core
     if (isset($_POST["submit"])) {
       $uploadOk = 0;
       if (!in_array($imageFileType, $formatai)) $this->Error('Klaida!', 'Netinkamas formatas!');
-      if (file_exists($target_file)) {
+      /*if (file_exists($target_file)) {
         $this->Error('Klaida!', 'Failas jau egzistuoja');
         $uploadOk = 0;
-      }
-
+      }*/ 
+ 
       if ($imageFileType === 'json') {
         $uploadOk = 1;
         $this->Uploadfunc("fileToUpload", $target_file);

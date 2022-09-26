@@ -135,6 +135,14 @@ class Page
       $this->Display_Pins($arg);
     }
   }
+  function Load_mp3($file){
+
+    return '<audio controls>
+     
+    <source src="'.$file.'" type="audio/mpeg">
+ 
+  </audio>';
+  }
   // puslapis Failai
   function Page_Files()
   { 

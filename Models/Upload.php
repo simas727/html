@@ -18,9 +18,9 @@ class UPLOAD{
  
   // failo ikelimas
   function Uploadfile()
-  {
+  { 
     require_once '../config/config.php';
-    $target_dir = ",,.public/f/";
+    $target_dir = "../public/f/";
     $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
     $uploadOk = 1;
     $Page = new PAGE();
@@ -28,17 +28,17 @@ class UPLOAD{
     // Check if image file is a actual image or fake image
     if (isset($_POST["submit"])) {
       $uploadOk = 0;
-      if (!in_array($imageFileType, $formatai)) $Page->Show_Error('Klaida!', 'Netinkamas formatas!');
+      if (!array_key_exists($imageFileType, $formatai)) $Page->Show_Error('Klaida!', 'Netinkamas formatas!');
       $this->Uploadfunc("fileToUpload", $target_file);
        $Type_Exec = new $formatai[$imageFileType];
-       $Type_Exec->Read_Valid();
+       $Type_Exec->Read_Valid($target_file);
      
       /*if (file_exists($target_file)) {
         $this->Error('Klaida!', 'Failas jau egzistuoja');
         $uploadOk = 0;
       }*/ 
  
-      
+       
     }
   }
 }

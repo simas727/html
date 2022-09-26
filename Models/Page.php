@@ -1,25 +1,22 @@
 <?php
-class Core
+require_once 'index.php';
+
+$Page = new Upload();
+class Page
 {
-  // klaidų rodymas
-  function Error($head, $body)
-  {
-    echo '<div class="w3-panel w3-red">
-      <h3>' . $head . '</h3>
-      <p>' . $body . '</p>
-    </div> ';
-  }
-  // Ikelimo funkcija pgr
-  function Uploadfunc($name, $target_file)
-  {
-    if (move_uploaded_file($_FILES[$name]["tmp_name"], $target_file)) {
-      echo "The file " . htmlspecialchars(basename($_FILES["fileToUpload"]["name"])) . " has been uploaded.";
-    } else {
-      $this->Error('Klaida!', 'kažkas ne taip, ikelti nepavyko!');
-    }
-  }
+
+ // klaidų rodymas
+ function Show_Error($head, $body)
+ {
+   echo '<div class="w3-panel w3-red">
+     <h3>' . $head . '</h3>
+     <p>' . $body . '</p>
+   </div> ';
+ }
+
+
   //nuotraukos header'is su tekstu presset'as
-  function he()
+  function Slider()
   {
     echo "<div class='mySlides w3-display-container w3-center'>
         <img src='https://wallpaperaccess.com/full/1278165.jpg' style='width:100%; height: 50vw; '>
@@ -43,81 +40,8 @@ class Core
         </div>
         </div>";
   }
-  // skaito validuoja JSON
-  function read_valid_json($file)
-  {
 
-    // Read the JSON file 
-    $json = file_get_contents($file);
-
-    // Decode the JSON file
-    $json_data = json_decode($json, true);
-    if (!array_key_exists('first_name', $json_data[0])) return false;
-    // Display data
-
-    return $json_data;
-  }
-  //Skaito Validuoja XML | NEPAVYKO
-  function read_valid_xml($file)
-  {
-    $xml = simplexml_load_file($file);
-
-    $array = array();
-    $list = $xml->item;
-    //var_dump($xml);
-    $on = true;
-    for ($i = 0; $i < count($list); $i++) {
-      if (!isset($list[$i]->first_name)) return $array = false;
-      $array[$i] = array($list[$i]->first_name, $list[$i]->age, $list[$i]->gender);
-    }
-    return $array;
-  }
-  // Skaito validuoja csv
-  function read_valid_csv($file)
-  {
-    $csv = array();
-    $lines = file($file, FILE_IGNORE_NEW_LINES);
-
-    foreach ($lines as $key => $value) {
-      $csv[$key] = str_getcsv($value);
-    }
-    $hdr = $csv[0];
-    if ($hdr[0] != 'first_name' || $hdr[1] != 'age' || $hdr[2] != 'gender') return false;
-    return $csv;
-  }
-  // failo ikelimas
-  function Uploadfile()
-  {
-    include 'config.php';
-    $target_dir = "f/";
-    $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
-    $uploadOk = 1;
-    $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
-    // Check if image file is a actual image or fake image
-    if (isset($_POST["submit"])) {
-      $uploadOk = 0;
-      if (!in_array($imageFileType, $formatai)) $this->Error('Klaida!', 'Netinkamas formatas!');
-      /*if (file_exists($target_file)) {
-        $this->Error('Klaida!', 'Failas jau egzistuoja');
-        $uploadOk = 0;
-      }*/ 
- 
-      if ($imageFileType === 'json') {
-        $uploadOk = 1;
-        $this->Uploadfunc("fileToUpload", $target_file);
-        $json = $this->read_valid_json($target_file);
-        $this->Create_table($json, 0, $imageFileType);
-      }
-      if ($imageFileType === 'csv') {
-        $uploadOk = 1;
-        $this->Uploadfunc("fileToUpload", $target_file);
-        $json = $this->read_valid_csv($target_file);
-        $this->Create_table($json, 1, $imageFileType);
-      }
-    }
-  }
-  // kuriam lentele
-  function Create_table($array, $start_index, $type)
+  function Create_Table($array, $start_index, $type)
   {
     $c = $array;
     // var_dump($array);
@@ -133,7 +57,7 @@ class Core
     echo '</table>';
   }
   // Pridedam užrašą
-  function Add_note()
+  function Add_Note()
   {
 
     if (isset($_POST["submit2"])) {
@@ -142,7 +66,7 @@ class Core
       $ar = array(
         array('name' => $name, 'note' => $note, 'pin' => 0, 'date' => date("Y-m-d h:i:s")),
       );
-      if (empty($name) || empty($note)) return $this->Error('Klaida!', 'Laukeliai negali būti tušti!');
+      if (empty($name) || empty($note)) return $this->Show_Error('Klaida!', 'Laukeliai negali būti tušti!');
       if (isset($name) || isset($note)) {
         if (is_array($_SESSION['notes'])) {
           array_push($_SESSION['notes'], (array('name' => $name, 'note' => $note, 'pin' => 1, 'date' => date("Y-m-d h:i:s"))));
@@ -156,13 +80,8 @@ class Core
       }
     }
   }
-  // nenaudojama
-  function date_compare($element1, $element2)
-  {
-    $datetime1 = strtotime($element1['datetime']);
-    $datetime2 = strtotime($element2['datetime']);
-    return $datetime1 - $datetime2;
-  }
+
+    // Rodom pažymėtus
   function Display_Pins($arg)
   {
 
@@ -218,7 +137,8 @@ class Core
   }
   // puslapis Failai
   function Page_Files()
-  {
+  { 
+    $UPLOAD = new Upload();
     echo ' <div class="w3-container w3-content w3-center w3-padding-64" style="max-width:800px" id="file">
   <p class="w3-justify">
   <form  method="post" enctype="multipart/form-data">
@@ -227,7 +147,7 @@ class Core
   <button class="w3-btn w3-blue-grey" name="submit">Pateikti</button>
 </form>
  </div>
-' . $this->Uploadfile();
+' . $UPLOAD->Uploadfile();
   }
   // Puslapis užrašai
   function Page_Notes()
@@ -253,5 +173,57 @@ class Core
 
 </div>';
   }
+  
+
+  function Page_Select(){
+
+    switch ($_GET["psl"]) {
+        case '':
+  
+  
+          // if(!$a) return;
+          $this->Sort_By(0);
+          break;
+        case 'sortbypin':
+          $this->Sort_By(2);
+          break;
+        case 'sortbydate':
+          $this->Sort_By(1);
+          break;
+        case 'delnote':
+          $id = $_GET['id'];
+          array_splice($_SESSION['notes'], $id, 1);
+          header('Location: ../');
+          break;
+        case 'pinnote':
+          $array = $_SESSION['notes'];
+          $id = $_GET['id'];
+  
+          if ($array[$id]['pin']) {
+            $array[$id]['pin'] = 0;
+            $_SESSION['notes'] = $array;
+            header('Location: ../');
+          } else {
+            $array[$id]['pin'] = 1;
+            $_SESSION['notes'] = $array;
+            header('Location: ../');
+          }
+          break;
+        case 'files':
+          $this->Page_Files();
+          break;
+        case 'notes':
+          $this->Page_Notes();
+          break;
+        case 'reset':
+          session_unset();
+          header('Location: ../');
+          break;
+        default:
+          # code...
+          break;
+      }
+  }
 }
+
 ?>
